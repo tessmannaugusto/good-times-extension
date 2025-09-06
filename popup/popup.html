@@ -1,4 +1,3 @@
-<!-- popup.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,23 +12,42 @@
   </style>
 </head>
 <body>
-  <h2>Controle de Tempo</h2>
+  <h2>Good times only</h2>
   
-  <!-- Aqui você implementa sua interface -->
   <div id="current-site">
-    <p>Site atual: <span id="domain"></span></p>
-    <p>Tempo: <span id="time"></span></p>
+    <p>Current website: <span id="domain"></span></p>
+    <p>Total time: <span id="domain-total-time"></span> mins</p>
+    <p>Monitored? <span id="is-monitored"></span></p>
+    <section>
+      <h4>Start Monitoring this website</h4>
+      <form id="add-site-form">
+        <div>
+          <label for="new-domain-max-time">Daily limit (minutes):</label>
+          <input
+            type="number"
+            name="max-daily-time"
+            id="new-domain-max-time"
+            placeholder="60"
+            min="1"
+            required
+          />
+        </div>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="daily-usage"> 
+    <h4>Daily usage</h4>
+    <ol id="daily-list">
+      <li>youtube.com -> <span id="time">32</span> minutes</p></li>
+      <li>globo.com -> <span id="time">10</span> minutes</p></li>
+      <li>linkedin -> <span id="time">32</span> minutes</p></li>
+    </ol>
   </div>
   
-  <div id="controls">
-    <input type="number" id="limit" placeholder="Limite em minutos">
-    <button id="set-limit">Definir Limite</button>
-  </div>
+  <button id="settingsButton">⚙️ Manage monitored websites</button>
   
-  <div id="stats">
-    <!-- Estatísticas aqui -->
-  </div>
-  
-  <script src="popup.js"></script>
+<script type="module" src="popup.js"></script>
 </body>
 </html>
