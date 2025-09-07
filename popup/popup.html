@@ -13,41 +13,34 @@
 </head>
 <body>
   <h2>Good times only</h2>
-  
-  <div id="current-site">
+
+  <section id="current-site">
     <p>Current website: <span id="domain"></span></p>
     <p>Total time: <span id="domain-total-time"></span> mins</p>
     <p>Monitored? <span id="is-monitored"></span></p>
-    <section>
-      <h4>Start Monitoring this website</h4>
-      <form id="add-site-form">
-        <div>
-          <label for="new-domain-max-time">Daily limit (minutes):</label>
-          <input
-            type="number"
-            name="max-daily-time"
-            id="new-domain-max-time"
-            placeholder="60"
-            min="1"
-            required
-          />
-        </div>
-        <button type="submit">Add</button>
-      </form>
-    </section>
-  </div>
 
-  <div id="daily-usage"> 
-    <h4>Daily usage</h4>
+    <form id="add-site-form">
+      <fieldset>
+        <legend>Start monitoring this website</legend>
+        <label for="new-domain-max-time">Daily limit (minutes):</label>
+        <input type="number" name="max-daily-time" id="new-domain-max-time" placeholder="60" min="1" required />
+        <button type="submit">Add</button>
+      </fieldset>
+    </form>
+  </section>
+
+  <section id="daily-usage">
+    <h3>Daily usage</h3>
     <ol id="daily-list">
-      <li>youtube.com -> <span id="time">32</span> minutes</p></li>
-      <li>globo.com -> <span id="time">10</span> minutes</p></li>
-      <li>linkedin -> <span id="time">32</span> minutes</p></li>
+      <li>youtube.com -> <span class="time">32</span> minutes</li>
+      <li>globo.com -> <span class="time">10</span> minutes</li>
+      <li>linkedin.com -> <span class="time">32</span> minutes</li>
     </ol>
-  </div>
-  
-  <button id="settingsButton">⚙️ Manage monitored websites</button>
-  
-<script type="module" src="popup.js"></script>
+  </section>
+
+  <button type="button" id="settingsButton" title="Manage monitored websites">⚙️ Manage monitored websites</button>
+
+  <script type="module" src="popup.js"></script>
 </body>
+
 </html>

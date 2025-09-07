@@ -1,8 +1,9 @@
 // content.js - Script injetado nas páginas
-// Aqui você pode implementar:
 // - Detecção de atividade na página
 // - Exibição de avisos/bloqueios
 // - Comunicação com background script
+
+//busca e processamento de dados
 
 const loadSettingsFromExtensionStorageLocal = async () => {
   const result = await chrome.storage.local.get(["settings"]);
@@ -12,6 +13,25 @@ const loadSettingsFromExtensionStorageLocal = async () => {
 const isMonitored = (currentWebsite, settings) => {
   return currentWebsite in settings.monitoredSites;
 };
+
+
+
+// event listeners
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    chrome.runtime.sendMessage({ type: "SITE_HIDDEN", currentWebsite: window.location.hostname });
+  } else {
+    chrome.runtime.sendMessage({ type: "SITE_VISIBLE", currentWebsite: window.location.hostname });
+  }
+});
+
+// window.addEventListener("blur", () => {
+//   chrome.runtime.sendMessage({ type: "SITE_BLUR", currentWebsite: window.location.hostname });
+// });
+
+// window.addEventListener("focus", () => {
+//   chrome.runtime.sendMessage({ type: "SITE_FOCUS", currentWebsite: window.location.hostname });
+// });
 
 (async () => {
   const currentWebsite = window.location.hostname;
@@ -31,3 +51,4 @@ const isMonitored = (currentWebsite, settings) => {
     });
   }
 })();
+

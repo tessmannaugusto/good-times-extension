@@ -1,5 +1,3 @@
-// background.js - Service Worker
-// Aqui você pode implementar:
 // - Monitoramento de tempo por site
 // - Timers e alarmes
 // - Comunicação entre scripts
@@ -22,16 +20,44 @@ async function checkDailyReset() {
 chrome.runtime.onStartup.addListener(checkDailyReset);
 chrome.runtime.onInstalled.addListener(checkDailyReset);
 
+let activeSite = null;
+let activeStartTime = null;
+let websiteTime = {}; // cache local em memória, buscar do storage corretamente
 
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "SITE_INFO") {
-    console.log("Mensagem recebida do content.js:", message);
-
-    // Aqui você pode atualizar o tempo de uso desse domínio
-    // Exemplo:
-    // calcularTempo(message.currentWebsite);
-
-    sendResponse({ status: "ok" });
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "SITE_INFO") {
+    switchSite(msg.currentWebsite);
+  } else if (msg.type === "SITE_HIDDEN") {
+    pauseSite(msg.currentWebsite);
+  } else if (msg.type === "SITE_VISIBLE") {
+    resumeSite(msg.currentWebsite);
   }
 });
+
+function switchSite(newSite) {
+  if (activeSite && activeStartTime) {
+    accumulateTime(activeSite);
+  }
+  activeSite = newSite;
+  activeStartTime = Date.now();
+}
+
+function pauseSite(site) {
+  if (activeSite === site && activeStartTime) {
+    accumulateTime(site);
+    activeStartTime = null;
+  }
+}
+
+function resumeSite(site) {
+  if (activeSite === site && !activeStartTime) {
+    activeStartTime = Date.now();
+  }
+}
+
+function accumulateTime(site) {
+  const elapsed = Date.now() - activeStartTime;
+  websiteTime[site] = (websiteTime[site] || 0) + elapsed; //preciso buscar o tempo já rodado no dia para somar, não adianta buscar do
+
+  chrome.storage.local.set({ websiteTime });
+}

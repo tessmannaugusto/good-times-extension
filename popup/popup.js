@@ -1,32 +1,43 @@
-let currentWebsite = "";
-let totalTime = 0;
-let isMonitored = false;
+const isMonitored = (currentWebsite, settings) => {
+  const isCurrentWebsiteMonitored = currentWebsite in settings.monitoredSites;
+  if (isCurrentWebsiteMonitored) {
+    document.getElementById("is-monitored").textContent =
+      'yes';
+  }
+};
 
-await getCurrentDomainInfo()
-
-async function loadSettingsFromExtensionStorageLocal() {
+const loadSettingsFromExtensionStorageLocal = async () => {
   const result = await chrome.storage.local.get(["settings"]);
   return result.settings || { monitoredSites: {} };
-}
+};
 
-let settings = await loadSettingsFromExtensionStorageLocal();
-
-async function getCurrentDomainInfo() {
+const getCurrentDomainInfo = async () => {
   const result = await chrome.tabs.query({ active: true, currentWindow: true });
   const currentTab = result[0];
   const url = new URL(currentTab.url);
-  const domain = url.hostname;
+  currentWebsite = url.hostname;
+};
 
-  currentWebsite = domain;
-
-  document.getElementById("domain").textContent = domain;
+const setData = () => {
+  document.getElementById("domain").textContent = currentWebsite;
   document.getElementById("domain-total-time").textContent = totalTime;
-  document.getElementById("is-monitored").textContent = isMonitored;
-}
+  document.getElementById("is-monitored").textContent =
+    isCurrentWebsiteMonitored;
+};
 
+let currentWebsite = "";
+let totalTime = 0;
+let isCurrentWebsiteMonitored = 'no';
 
+const settings = await loadSettingsFromExtensionStorageLocal();
+await getCurrentDomainInfo();
+isCurrentWebsiteMonitored = isMonitored(currentWebsite, settings);
+
+setData()
+
+//event listeners
 document.getElementById("add-site-form").addEventListener("submit", (e) => {
-  e.preventDefault();
+  // e.preventDefault();
 
   const newDomain = currentWebsite;
   const newLimit = document.getElementById("new-domain-max-time").value;
@@ -41,3 +52,9 @@ document.getElementById("add-site-form").addEventListener("submit", (e) => {
 document.getElementById("settingsButton").addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
 });
+
+const addSiteForm = document.getElementById("add-site-form");
+
+if (isCurrentWebsiteMonitored) {
+  addSiteForm.style.display = "none";
+}
