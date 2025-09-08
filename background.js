@@ -13,26 +13,15 @@ async function checkDailyReset() {
   if (dailyData.date !== today) {
     const newDailyData = { date: today };
     await chrome.storage.local.set({ dailyData: newDailyData });
+    await chrome.storage.local.set({ websiteTime: {}});
     console.log("Dados diários resetados para:", today);
   }
 }
 
-chrome.runtime.onStartup.addListener(checkDailyReset);
-chrome.runtime.onInstalled.addListener(checkDailyReset);
-
-let activeSite = null;
-let activeStartTime = null;
-let websiteTime = {}; // cache local em memória, buscar do storage corretamente
-
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "SITE_INFO") {
-    switchSite(msg.currentWebsite);
-  } else if (msg.type === "SITE_HIDDEN") {
-    pauseSite(msg.currentWebsite);
-  } else if (msg.type === "SITE_VISIBLE") {
-    resumeSite(msg.currentWebsite);
-  }
-});
+async function loadWebsiteTimeFromExtensionStorageLocal() {
+  const result = await chrome.storage.local.get(["websiteTime"]);
+  return result.websiteTime || {};
+}
 
 function switchSite(newSite) {
   if (activeSite && activeStartTime) {
@@ -57,7 +46,30 @@ function resumeSite(site) {
 
 function accumulateTime(site) {
   const elapsed = Date.now() - activeStartTime;
-  websiteTime[site] = (websiteTime[site] || 0) + elapsed; //preciso buscar o tempo já rodado no dia para somar, não adianta buscar do
+  websiteTime[site] = (websiteTime[site] || 0) + elapsed;
 
   chrome.storage.local.set({ websiteTime });
 }
+
+chrome.runtime.onStartup.addListener(checkDailyReset);
+chrome.runtime.onInstalled.addListener(checkDailyReset);
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "SITE_INFO") {
+    switchSite(msg.currentWebsite);
+  } else if (msg.type === "SITE_HIDDEN") {
+    pauseSite(msg.currentWebsite);
+  } else if (msg.type === "SITE_VISIBLE") {
+    resumeSite(msg.currentWebsite);
+  }
+});
+
+let activeSite = null;
+let activeStartTime = null;
+let websiteTime = {};
+
+async function init() {
+  websiteTime = await loadWebsiteTimeFromExtensionStorageLocal();
+  console.log("Website time carregado:", websiteTime);
+}
+
+init();
